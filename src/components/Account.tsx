@@ -82,8 +82,37 @@ const Account: React.FC = () => {
     <div>
       <h2>View Accounts</h2>
 
+      <div style={{ marginTop: "20px", marginBottom: "20px" }}>
+        <input
+          type="text"
+          value={privateKey}
+          onChange={(e) => setPrivateKey(e.target.value)}
+          placeholder="Enter Private Key"
+        />
+        <button onClick={handleImportAccount} style={{ marginLeft: "10px" }}>
+          Import Account
+        </button>
+      </div>
+
+      {/* Error Notification */}
+      {errorMessage && (
+        <div
+          style={{
+            marginTop: "20px",
+            marginBottom: "20px",
+            padding: "10px",
+            border: "1px solid red",
+            borderRadius: "5px",
+            backgroundColor: "#ffe6e6",
+            color: "#cc0000",
+          }}
+        >
+          <strong>Error:</strong> {errorMessage}
+        </div>
+      )}
+
       {accounts.length > 0 ? (
-        <table border="1" cellPadding="10" cellSpacing="0">
+        <table border={1} cellPadding={10} cellSpacing={0}>
           <thead>
             <tr>
               <th>Address</th>
@@ -101,34 +130,6 @@ const Account: React.FC = () => {
         </table>
       ) : (
         <p>No accounts found. Please connect MetaMask.</p>
-      )}
-
-      <div style={{ marginTop: "20px" }}>
-        <input
-          type="text"
-          value={privateKey}
-          onChange={(e) => setPrivateKey(e.target.value)}
-          placeholder="Enter Private Key"
-        />
-        <button onClick={handleImportAccount} style={{ marginLeft: "10px" }}>
-          Import Account
-        </button>
-      </div>
-
-      {/* Error Notification */}
-      {errorMessage && (
-        <div
-          style={{
-            marginTop: "20px",
-            padding: "10px",
-            border: "1px solid red",
-            borderRadius: "5px",
-            backgroundColor: "#ffe6e6",
-            color: "#cc0000",
-          }}
-        >
-          <strong>Error:</strong> {errorMessage}
-        </div>
       )}
     </div>
   );

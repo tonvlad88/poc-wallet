@@ -16,7 +16,7 @@ const App: React.FC = () => {
           <nav>
             <ul>
               <li>
-                <Link to="/">Account</Link>
+                <Link to="/">Accounts</Link>
               </li>
               <li>
                 <Link to="/transfer">Transfer ETH</Link>
