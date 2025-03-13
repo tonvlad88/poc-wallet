@@ -1,14 +1,35 @@
 // src/components/ReceiveETH.tsx
-import React from "react";
+import React, { useContext } from "react";
+import { WalletContext } from "../contexts/WalletContext";
 
 const ReceiveETH: React.FC = () => {
-  // Add logic to generate and display user's address
+  const walletContext = useContext(WalletContext);
+
+  if (!walletContext) {
+    return <p>Loading wallet data...</p>;
+  }
+
+  const { accounts, balances } = walletContext;
+
   return (
     <div>
       <h2>Receive ETH</h2>
-      <p>
-        Share this address to receive ETH: {/* Add code to display address */}
-      </p>
+      <table border={1} cellPadding={10} cellSpacing={0}>
+        <thead>
+          <tr>
+            <th>Address</th>
+            <th>Balance (ETH)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {accounts.map((account, index) => (
+            <tr key={index}>
+              <td>{account}</td>
+              <td>{balances[account] || "Loading..."}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };

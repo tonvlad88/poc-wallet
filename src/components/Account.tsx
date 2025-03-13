@@ -1,82 +1,35 @@
-import React, { useState, useEffect } from "react";
-import Web3 from "web3";
-
-declare global {
-  interface Window {
-    ethereum: any;
-    web3: any;
-  }
-}
+import React, { useState, useContext } from "react";
+import { WalletContext } from "../contexts/WalletContext";
 
 const Account: React.FC = () => {
-  const [accounts, setAccounts] = useState<string[]>([]);
-  const [balances, setBalances] = useState<{ [key: string]: string }>({});
+  const walletContext = useContext(WalletContext);
   const [privateKey, setPrivateKey] = useState<string>("");
-  const [web3, setWeb3] = useState<Web3 | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>("");
 
-  useEffect(() => {
-    const initializeWeb3 = async () => {
-      if (window.ethereum) {
-        try {
-          await window.ethereum.request({ method: "eth_requestAccounts" });
-          const web3Instance = new Web3(window.ethereum);
-          setWeb3(web3Instance);
+  if (!walletContext) {
+    return <p>Loading wallet data...</p>;
+  }
 
-          const accounts = await web3Instance.eth.getAccounts();
-          setAccounts(accounts);
+  const { accounts, balances, addAccount } = walletContext;
 
-          // Fetch balances for all accounts
-          const balances: { [key: string]: string } = {};
-          for (const account of accounts) {
-            const balance = await web3Instance.eth.getBalance(account);
-            balances[account] = web3Instance.utils.fromWei(balance, "ether");
-          }
-          setBalances(balances);
-        } catch (error) {
-          console.error("User denied account access");
-        }
-      } else if (window.web3) {
-        const web3Instance = new Web3(window.web3.currentProvider);
-        setWeb3(web3Instance);
+  const handleImportAccount = async () => {
+    try {
+      await addAccount(privateKey);
+      setPrivateKey("");
+      setErrorMessage("");
+    } catch (error: any) {
+      if (error.message.toLowerCase().includes("invalid private key")) {
+        setErrorMessage(
+          "Invalid private key. Please provide a valid private key."
+        );
       } else {
-        console.error(
-          "No Ethereum browser extension detected, install MetaMask!"
+        setErrorMessage(
+          "An error occurred while importing the account. Please try again."
         );
       }
-    };
-    initializeWeb3();
-  }, []);
-
- const handleImportAccount = async () => {
-   if (web3) {
-     try {
-       // Convert private key to account using web3
-       const importedAccount =
-         web3.eth.accounts.privateKeyToAccount(privateKey);
-       setAccounts((prevAccounts) => [
-         ...prevAccounts,
-         importedAccount.address,
-       ]);
-
-       // Fetch balance for the imported account
-       const balance = await web3.eth.getBalance(importedAccount.address);
-       setBalances((prevBalances) => ({
-         ...prevBalances,
-         [importedAccount.address]: web3.utils.fromWei(balance, "ether"),
-       }));
-
-       setPrivateKey(""); // Clear input after successful import
-       setErrorMessage(""); // Clear any existing error messages
-     } catch (error: any) {
-       // General error handling
-       console.error("Error importing account:", error.message);
-       setErrorMessage(
-         "Failed to import account. Please ensure the private key is correct and try again."
-       );
-     }
-   }
- };
+      console.error("Error importing account:", error.message);
+    }
+  };
 
   return (
     <div>
@@ -94,7 +47,6 @@ const Account: React.FC = () => {
         </button>
       </div>
 
-      {/* Error Notification */}
       {errorMessage && (
         <div
           style={{
@@ -116,14 +68,14 @@ const Account: React.FC = () => {
           <thead>
             <tr>
               <th>Address</th>
-              <th>Balance (ETH)</th>
+              <th>Balance</th>
             </tr>
           </thead>
           <tbody>
             {accounts.map((account, index) => (
               <tr key={index}>
                 <td>{account}</td>
-                <td>{balances[account] || "Loading..."}</td>
+                <td>{`${balances[account]} (ETH)` || "Loading..."}</td>
               </tr>
             ))}
           </tbody>
