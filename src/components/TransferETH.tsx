@@ -1,4 +1,3 @@
-// src/components/TransferETH.tsx
 import React, { useState } from "react";
 // import Web3 from "web3";
 

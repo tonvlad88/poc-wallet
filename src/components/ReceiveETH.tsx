@@ -1,4 +1,3 @@
-// src/components/ReceiveETH.tsx
 import React, { useContext } from "react";
 import { WalletContext } from "../contexts/WalletContext";
 

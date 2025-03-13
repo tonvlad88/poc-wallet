@@ -1,4 +1,3 @@
-// src/components/TransactionLog.tsx
 import React, { useEffect, useState } from "react";
 import Web3 from "web3";
 
