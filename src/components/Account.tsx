@@ -68,14 +68,14 @@ const Account: React.FC = () => {
           <thead>
             <tr>
               <th>Address</th>
-              <th>Balance</th>
+              <th>Balance (ETH)</th>
             </tr>
           </thead>
           <tbody>
             {accounts.map((account, index) => (
               <tr key={index}>
                 <td>{account}</td>
-                <td>{`${balances[account]} (ETH)` || "Loading..."}</td>
+                <td>{balances[account] || "Loading..."}</td>
               </tr>
             ))}
           </tbody>

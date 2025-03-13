@@ -11,42 +11,66 @@ const TransactionLog: React.FC = () => {
   const { transactionLogs } = walletContext;
 
   return (
-    <div>
+    <div style={{ padding: "20px" }}>
       <h2>Transaction Log</h2>
+
       {transactionLogs.length > 0 ? (
-        <table
-          border={1}
-          cellPadding={10}
-          cellSpacing={0}
-          style={{ width: "100%" }}
+        <div
+          style={{
+            overflowX: "auto", // Enable horizontal scrolling if table overflows
+            marginTop: "20px",
+            border: "1px solid #ccc",
+            borderRadius: "5px",
+          }}
         >
-          <thead>
-            <tr>
-              <th>Sender</th>
-              <th>Recipient</th>
-              <th>Amount (ETH)</th>
-              <th>Transaction Hash</th>
-            </tr>
-          </thead>
-          <tbody>
-            {transactionLogs.map((log, index) => (
-              <tr key={index}>
-                <td>{log.from}</td>
-                <td>{log.to}</td>
-                <td>{log.amount}</td>
-                <td>
-                  <a
-                    href={`https://etherscan.io/tx/${log.transactionHash}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {log.transactionHash}
-                  </a>
-                </td>
+          <table
+            cellPadding={10}
+            cellSpacing={0}
+            style={{
+              width: "100%",
+              borderCollapse: "collapse", // Prevent double borders
+            }}
+          >
+            <thead style={{ backgroundColor: "#f5f5f5" }}>
+              <tr>
+                <th style={{ textAlign: "left", padding: "10px" }}>Sender</th>
+                <th style={{ textAlign: "left", padding: "10px" }}>
+                  Recipient
+                </th>
+                <th style={{ textAlign: "left", padding: "10px" }}>
+                  Amount (ETH)
+                </th>
+                <th style={{ textAlign: "left", padding: "10px" }}>
+                  Transaction Hash
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {transactionLogs.map((log, index) => (
+                <tr
+                  key={index}
+                  style={{
+                    borderBottom: "1px solid #ddd", // Add separation between rows
+                  }}
+                >
+                  <td style={{ padding: "10px" }}>{log.from}</td>
+                  <td style={{ padding: "10px" }}>{log.to}</td>
+                  <td style={{ padding: "10px" }}>{log.amount}</td>
+                  <td style={{ padding: "10px" }}>
+                    <a
+                      href={`https://etherscan.io/tx/${log.transactionHash}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: "#007bff", textDecoration: "none" }}
+                    >
+                      {log.transactionHash}
+                    </a>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       ) : (
         <p>No transactions found.</p>
       )}

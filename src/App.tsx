@@ -1,7 +1,6 @@
-// src/App.tsx
 import React from "react";
 import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
-import { WalletProvider } from "./contexts/WalletContext";
+import { WalletProvider } from "./contexts/WalletContext"; // Ensure WalletContext is imported
 import Account from "./components/Account";
 import TransferETH from "./components/TransferETH";
 import ReceiveETH from "./components/ReceiveETH";
@@ -10,9 +9,11 @@ import "./styles.css";
 
 const App: React.FC = () => {
   return (
+    // Wrap the entire app with WalletProvider for context access
     <WalletProvider>
       <Router>
         <div className="container">
+          {/* Sidebar */}
           <div className="sidebar">
             <h2>Blockchain Wallet</h2>
             <nav>
@@ -32,6 +33,8 @@ const App: React.FC = () => {
               </ul>
             </nav>
           </div>
+
+          {/* Main Content */}
           <div className="main-content">
             <Routes>
               <Route path="/" element={<Account />} />
