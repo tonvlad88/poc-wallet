@@ -1,29 +1,55 @@
-import React, { useEffect, useState } from "react";
-import Web3 from "web3";
+import React, { useContext } from "react";
+import { WalletContext } from "../contexts/WalletContext";
 
 const TransactionLog: React.FC = () => {
-  const [transactions, setTransactions] = useState<Web3.eth.Log[]>([]);
+  const walletContext = useContext(WalletContext);
 
-  useEffect(() => {
-    const fetchTransactions = async () => {
-      const web3 = new Web3(Web3.givenProvider);
-      const accounts = await web3.eth.getAccounts();
-      const txs = await web3.eth.getPastLogs({
-        address: accounts[0],
-      });
-      setTransactions(txs);
-    };
-    fetchTransactions();
-  }, []);
+  if (!walletContext) {
+    return <p>Loading transaction data...</p>;
+  }
+
+  const { transactionLogs } = walletContext;
 
   return (
     <div>
       <h2>Transaction Log</h2>
-      <ul>
-        {transactions.map((tx, index) => (
-          <li key={index}>{tx.transactionHash}</li>
-        ))}
-      </ul>
+      {transactionLogs.length > 0 ? (
+        <table
+          border={1}
+          cellPadding={10}
+          cellSpacing={0}
+          style={{ width: "100%" }}
+        >
+          <thead>
+            <tr>
+              <th>Sender</th>
+              <th>Recipient</th>
+              <th>Amount (ETH)</th>
+              <th>Transaction Hash</th>
+            </tr>
+          </thead>
+          <tbody>
+            {transactionLogs.map((log, index) => (
+              <tr key={index}>
+                <td>{log.from}</td>
+                <td>{log.to}</td>
+                <td>{log.amount}</td>
+                <td>
+                  <a
+                    href={`https://etherscan.io/tx/${log.transactionHash}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {log.transactionHash}
+                  </a>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p>No transactions found.</p>
+      )}
     </div>
   );
 };
