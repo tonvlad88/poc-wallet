@@ -1,4 +1,3 @@
-// src/components/Account.tsx
 import React, { useState, useEffect } from "react";
 import Web3 from "web3";
 
@@ -14,8 +13,7 @@ const Account: React.FC = () => {
   const [balances, setBalances] = useState<{ [key: string]: string }>({});
   const [privateKey, setPrivateKey] = useState<string>("");
   const [web3, setWeb3] = useState<Web3 | null>(null);
-
-  const [account, setAccount] = useState<Web3.eth.Account | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   useEffect(() => {
     const initializeWeb3 = async () => {
@@ -24,11 +22,17 @@ const Account: React.FC = () => {
           await window.ethereum.request({ method: "eth_requestAccounts" });
           const web3Instance = new Web3(window.ethereum);
           setWeb3(web3Instance);
+
           const accounts = await web3Instance.eth.getAccounts();
-          console.log('accounts', accounts)
           setAccounts(accounts);
 
-
+          // Fetch balances for all accounts
+          const balances: { [key: string]: string } = {};
+          for (const account of accounts) {
+            const balance = await web3Instance.eth.getBalance(account);
+            balances[account] = web3Instance.utils.fromWei(balance, "ether");
+          }
+          setBalances(balances);
         } catch (error) {
           console.error("User denied account access");
         }
@@ -41,43 +45,91 @@ const Account: React.FC = () => {
         );
       }
     };
-
     initializeWeb3();
   }, []);
 
-  const handleImportAccount = () => {
-    if (web3) {
-      const importedAccount = web3.eth.accounts.privateKeyToAccount(privateKey);
-      setAccounts([...accounts, importedAccount.address]);
-      setPrivateKey('')
-    }
-  };
+ const handleImportAccount = async () => {
+   if (web3) {
+     try {
+       // Convert private key to account using web3
+       const importedAccount =
+         web3.eth.accounts.privateKeyToAccount(privateKey);
+       setAccounts((prevAccounts) => [
+         ...prevAccounts,
+         importedAccount.address,
+       ]);
+
+       // Fetch balance for the imported account
+       const balance = await web3.eth.getBalance(importedAccount.address);
+       setBalances((prevBalances) => ({
+         ...prevBalances,
+         [importedAccount.address]: web3.utils.fromWei(balance, "ether"),
+       }));
+
+       setPrivateKey(""); // Clear input after successful import
+       setErrorMessage(""); // Clear any existing error messages
+     } catch (error: any) {
+       // General error handling
+       console.error("Error importing account:", error.message);
+       setErrorMessage(
+         "Failed to import account. Please ensure the private key is correct and try again."
+       );
+     }
+   }
+ };
 
   return (
     <div>
       <h2>View Accounts</h2>
+
       {accounts.length > 0 ? (
-        <div>
-          {accounts.map((account, index) => (
-            <div key={index}>
-              <p>Address: {account}</p>
-              <p>Balance: {balances[account]} ETH</p>
-            </div>
-          ))}
-        </div>
+        <table border="1" cellPadding="10" cellSpacing="0">
+          <thead>
+            <tr>
+              <th>Address</th>
+              <th>Balance (ETH)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {accounts.map((account, index) => (
+              <tr key={index}>
+                <td>{account}</td>
+                <td>{balances[account] || "Loading..."}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       ) : (
         <p>No accounts found. Please connect MetaMask.</p>
       )}
 
-      <div>
+      <div style={{ marginTop: "20px" }}>
         <input
           type="text"
           value={privateKey}
           onChange={(e) => setPrivateKey(e.target.value)}
           placeholder="Enter Private Key"
         />
-        <button onClick={handleImportAccount}>Import Account</button>
+        <button onClick={handleImportAccount} style={{ marginLeft: "10px" }}>
+          Import Account
+        </button>
       </div>
+
+      {/* Error Notification */}
+      {errorMessage && (
+        <div
+          style={{
+            marginTop: "20px",
+            padding: "10px",
+            border: "1px solid red",
+            borderRadius: "5px",
+            backgroundColor: "#ffe6e6",
+            color: "#cc0000",
+          }}
+        >
+          <strong>Error:</strong> {errorMessage}
+        </div>
+      )}
     </div>
   );
 };
