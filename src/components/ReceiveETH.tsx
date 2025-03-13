@@ -1,5 +1,6 @@
 import React, { useContext } from "react";
 import { WalletContext } from "../contexts/WalletContext";
+import QRCode from "qrcode.react";
 
 const ReceiveETH: React.FC = () => {
   const walletContext = useContext(WalletContext);
@@ -8,27 +9,52 @@ const ReceiveETH: React.FC = () => {
     return <p>Loading wallet data...</p>;
   }
 
-  const { accounts, balances } = walletContext;
+  const { accounts } = walletContext;
+
+  const copyToClipboard = (address: string) => {
+    navigator.clipboard.writeText(address);
+    alert(`Address copied to clipboard: ${address}`);
+  };
 
   return (
     <div>
       <h2>Receive ETH</h2>
-      <table border={1} cellPadding={10} cellSpacing={0}>
-        <thead>
-          <tr>
-            <th>Address</th>
-            <th>Balance (ETH)</th>
-          </tr>
-        </thead>
-        <tbody>
+      {accounts.length > 0 ? (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "20px" }}>
           {accounts.map((account, index) => (
-            <tr key={index}>
-              <td>{account}</td>
-              <td>{balances[account] || "Loading..."}</td>
-            </tr>
+            <div
+              key={index}
+              style={{
+                border: "1px solid #ccc",
+                borderRadius: "10px",
+                padding: "20px",
+                width: "300px",
+                textAlign: "center",
+              }}
+            >
+              <h4>Account {index + 1}</h4>
+              <p style={{ wordWrap: "break-word" }}>{account}</p>
+              {/* <QRCode value={account} size={150} /> */}
+              <button
+                onClick={() => copyToClipboard(account)}
+                style={{
+                  marginTop: "10px",
+                  padding: "10px",
+                  backgroundColor: "#4CAF50",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                }}
+              >
+                Copy Address
+              </button>
+            </div>
           ))}
-        </tbody>
-      </table>
+        </div>
+      ) : (
+        <p>No accounts found. Please connect MetaMask or import accounts.</p>
+      )}
     </div>
   );
 };
