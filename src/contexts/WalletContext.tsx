@@ -1,6 +1,12 @@
 import React, { createContext, useState, ReactNode } from "react";
 import Web3 from "web3";
 
+declare global {
+  interface Window {
+    ethereum: any;
+  }
+}
+
 export interface WalletContextType {
   accounts: string[];
   balances: { [key: string]: string };
@@ -30,10 +36,10 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({
 
   React.useEffect(() => {
     const initializeWeb3 = async () => {
-      if (window.ethereum) {
+      if (window?.ethereum) {
         try {
-          await window.ethereum.request({ method: "eth_requestAccounts" });
-          const web3Instance = new Web3(window.ethereum);
+          await window?.ethereum.request({ method: "eth_requestAccounts" });
+          const web3Instance = new Web3(window?.ethereum);
           setWeb3(web3Instance);
 
           const fetchedAccounts = await web3Instance.eth.getAccounts();
